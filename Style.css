@@ -1,0 +1,17 @@
+/* Using a base class to apply the Inter font to the whole body */
+body {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Base styles for all views to allow for transitions if needed */
+.view {
+    width: 100%;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+/* Custom focus ring styles for better accessibility and design */
+input:focus, button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4); /* Corresponds to Tailwind's ring-blue-500 with opacity */
+    border-color: #3B82F6; /* Corresponds to Tailwind's border-blue-500 */
+}
