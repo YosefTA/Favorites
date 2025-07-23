@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Profile</title>
+    <!-- Link to the shared CSS file -->
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts and Tailwind for utility classes -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-900 text-gray-200 flex items-center justify-center min-h-screen">
+
+    <div id="profile-view" class="w-full max-w-2xl mx-4 view">
+        <div class="bg-gray-800 rounded-2xl shadow-2xl p-8">
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-3xl font-bold text-white">Your Profile</h1>
+                <button id="logout-button" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                    Sign Out
+                </button>
+            </div>
+            <div id="profile-display"></div>
+            <form id="edit-profile-form" class="hidden space-y-4 mt-6">
+                 <div>
+                    <label for="edit-username" class="block text-sm font-medium text-gray-300">Username</label>
+                    <input type="text" id="edit-username" class="w-full mt-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg" />
+                </div>
+                 <div>
+                    <label for="edit-bio" class="block text-sm font-medium text-gray-300">Bio</label>
+                    <textarea id="edit-bio" rows="4" class="w-full mt-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg"></textarea>
+                </div>
+                 <div>
+                    <label for="edit-picture" class="block text-sm font-medium text-gray-300">Profile Picture URL</label>
+                    <input type="text" id="edit-picture" class="w-full mt-1 px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg" />
+                </div>
+                <div class="flex gap-4">
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition">
+                        Save Changes
+                    </button>
+                    <button type="button" id="cancel-edit-button" class="w-full bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg transition">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+             <div id="profile-message" class="text-green-400 text-center mt-4 text-sm"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const profileDisplay = document.getElementById('profile-display');
+            const editProfileForm = document.getElementById('edit-profile-form');
+            const profileMessage = document.getElementById('profile-message');
+            const logoutButton = document.getElementById('logout-button');
+            const cancelEditButton = document.getElementById('cancel-edit-button');
+            
+            let currentUserData = JSON.parse(localStorage.getItem('users')) || {};
+            const currentUserId = localStorage.getItem('currentUser');
+            let currentUser = currentUserData[currentUserId];
+
+            if (!currentUser) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const renderProfile = () => {
+                profileDisplay.innerHTML = `
+                    <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
+                        <div class="flex-shrink-0 text-center">
+                            <img src="${currentUser.picture}" alt="Profile" class="w-32 h-32 rounded-full object-cover mx-auto border-4 border-gray-600"
+                                onerror="this.onerror=null;this.src='https://placehold.co/150x150/1f2937/a0aec0?text=${currentUser.username.charAt(0).toUpperCase()}';">
+                        </div>
+                        <div class="flex-grow w-full">
+                            <div class="space-y-4">
+                                <div><h3 class="text-sm text-gray-400">Username</h3><p class="text-xl text-white">${currentUser.username}</p></div>
+                                <div><h3 class="text-sm text-gray-400">Email</h3><p class="text-xl text-white">${currentUser.email}</p></div>
+                                <div><h3 class="text-sm text-gray-400">Bio</h3><p class="text-white whitespace-pre-wrap">${currentUser.bio}</p></div>
+                                <button id="edit-profile-button" class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition">Edit Profile</button>
+                            </div>
+                        </div>
+                    </div>`;
+                document.getElementById('edit-profile-button').addEventListener('click', showEditForm);
+            };
+
+            const showEditForm = () => {
+                document.getElementById('edit-username').value = currentUser.username;
+                document.getElementById('edit-bio').value = currentUser.bio;
+                document.getElementById('edit-picture').value = currentUser.picture;
+                profileDisplay.classList.add('hidden');
+                editProfileForm.classList.remove('hidden');
+            };
+
+            const hideEditForm = () => {
+                editProfileForm.classList.add('hidden');
+                profileDisplay.classList.remove('hidden');
+                renderProfile();
+            };
+
+            const handleEditSubmit = (e) => {
+                e.preventDefault();
+                
+                currentUser.username = document.getElementById('edit-username').value;
+                currentUser.bio = document.getElementById('edit-bio').value;
+                currentUser.picture = document.getElementById('edit-picture').value;
+
+                let allUsers = JSON.parse(localStorage.getItem('users')) || {};
+                allUsers[currentUserId] = currentUser;
+                localStorage.setItem('users', JSON.stringify(allUsers));
+                
+                profileMessage.textContent = 'Profile updated successfully!';
+                setTimeout(() => profileMessage.textContent = '', 3000);
+                
+                hideEditForm();
+            };
+
+            const handleLogout = () => {
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            };
+
+            renderProfile();
+            editProfileForm.addEventListener('submit', handleEditSubmit);
+            cancelEditButton.addEventListener('click', hideEditForm);
+            logoutButton.addEventListener('click', handleLogout);
+        });
+    </script>
+</body>
+</html>
